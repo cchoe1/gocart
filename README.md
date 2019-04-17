@@ -29,4 +29,11 @@ Configuration will be saved as yaml or json (not yet determined).
 
 3. Dockerize
 
+# Requirements
 
+Before proceeding, you'll need to satisfy a few requirements in order to use this:
+
+1. You should have an existing database with both products & a free table for use with GoCart.  The first is used
+to source any data such as pricing, etc.  Then the second table is used for persisting carts.  You'll need to map
+the fields within the configuration file for the first table.
+2. 

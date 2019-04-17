@@ -7,4 +7,3 @@ type ConnectionInterface interface {
   Connect() (*sql.DB, error);
   disconnect() error;
 }
-
