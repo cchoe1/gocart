@@ -12,5 +12,21 @@ Configuration will be saved as yaml or json (not yet determined).
 # Roadmap
 
 1. Implement internals
+
+   a. Implement basic functionality
+
+      i. Carts
+
+      ii. Items
+
+      iii. Database operations
+
+      iv. Expose in REST API
+
+   b. Split code into more maintainable files
+
 2. Expose functionality via REST API
+
 3. Dockerize
+
+
