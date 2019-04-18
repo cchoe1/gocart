@@ -1,0 +1,23 @@
+database:
+  # Basic database authentication below
+  type: mysql
+  username: pantheon
+  password: pantheon
+  database: pantheon
+  host: localhost
+  port: 33050
+  # For cart, this is mostly a custom table that we create so ensure it is a non-existing table
+  cart:
+    table: 'gocart'
+    mappings:
+      index: 'CartId'
+  # We source our item information from the provided table below.
+  items:
+    table: 'iconnect_product'
+    # Our service requires some knowledge on a few fields so we create the 'links' here
+    mappings:
+      index: id
+      name: name
+      price: price
+      cost: cost
+

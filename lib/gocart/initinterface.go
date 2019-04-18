@@ -24,15 +24,18 @@ type InitInterface interface {
 }
 
 // Perform logic here
+// @TODO: Init() should not return any application stuff, maybe a status code if anything
 func (cli *CommandLine) Init() (GoCart) {
+  cli.GoCart.loadConfig();
+
   mysql := MysqlConnection{
-    host: "localhost", // cnf
-    port: "33050", // cnf
-    user: "pantheon", // cnf
-    password: "pantheon", // cnf
-    database: "pantheon", // cnf
-    table: "gocart", // cnf ? maybe just create on initial run?
-    table_index: "CartId",
+    host: cli.GoCart.Configuration.Database.Host, // cnf
+    port: cli.GoCart.Configuration.Database.Port, // cnf
+    user: cli.GoCart.Configuration.Database.Username, // cnf
+    password: cli.GoCart.Configuration.Database.Password, // cnf
+    database: cli.GoCart.Configuration.Database.Database, // cnf
+    table: cli.GoCart.Configuration.Database.Cart.Table, // cnf ? maybe just create on initial run?
+    table_index: cli.GoCart.Configuration.Database.Mappings.Index,
   }
 
   // Test logic below - not required for normal use
@@ -41,8 +44,6 @@ func (cli *CommandLine) Init() (GoCart) {
   }
   //GC, err := mysql.Connect();
   cart1 := gocart.NewCart([]Item{}, 0.00);
-  println(cart1.GetValue());
-  println(cart1.GetId());
 
   return gocart;
 }
@@ -51,6 +52,7 @@ func (cli *CommandLine) Init() (GoCart) {
  * Init() will initialize the API endpoints
  */
 func (rest *RestApi) Init() error {
+  rest.GoCart.loadConfig();
   mysql := MysqlConnection{
     host: "localhost", // cnf
     port: "33050", // cnf

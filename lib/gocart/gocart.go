@@ -3,30 +3,90 @@ package gocart
 import (
   "database/sql"
   "fmt"
+  "gopkg.in/yaml.v2"
+  "io/ioutil"
 )
 /**
  * The main struct which ties our application together and also serves as an high-level API
  */
 
+type Configuration struct {
+  
+  Database struct {
+    Type string;
+    Username string;
+    Database string;
+    Host string;
+    Port string;
+
+    Cart struct {
+      Table string;
+    }
+    Items struct {
+      Table string;
+
+      Mappings struct {
+        Index string;
+        Name string;
+        Price string;
+        Cost string;
+      }
+    }
+  }
+}
+
 type GoCart struct {
 
   /**
-   * A db connection
+   * A potential db connection
    */
   Db *sql.DB;
 
+  /**
+   * The information related to a Mysql persistence layer
+   */
   Connection MysqlConnection;
+
+  /**
+   * The application config
+   */
+  Config Configuration;
 
 }
 
 type GoCartInterface interface {
+  /* Private Methods */
+  loadConfig() *Configuration;
+
+  /* Public Methods */
   Connect() error;
   GetTable() string;
   NewCart(items []Item, cart_value float64) *cart;
   GetCart(id int64) *cart;
-
   GetItem(id int64) *Item;
 }
+
+/**
+ * Loads config from the config.yml at the project root
+ */
+func (gc *GoCart) loadConfig() *GoCart {
+
+  text, err := ioutil.ReadFile("./config.yml");
+  if err != nil {
+    panic(err);
+  }
+  config := Configuration{}
+  yaml_err := yaml.Unmarshal([]byte(text), &config);
+
+  if yaml_err != nil {
+    panic(yaml_err);
+  }
+  fmt.Println(config.Database.Items.Table);
+
+  gc.Config = config;
+  return gc;
+}
+
 
 func (gc *GoCart) Connect() error {
   dsn := gc.Connection.user + ":" + gc.Connection.password + "@tcp(" + gc.Connection.host + ":" + gc.Connection.port + ")/" + gc.Connection.database + "?charset=utf8";
