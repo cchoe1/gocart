@@ -24,6 +24,8 @@ type GoCartInterface interface {
   GetTable() string;
   NewCart(items []Item, cart_value float64) *cart;
   GetCart(id int64) *cart;
+
+  GetItem(id int64) *Item;
 }
 
 func (gc *GoCart) Connect() error {
@@ -72,3 +74,48 @@ func (gc GoCart) NewCart(items []Item, cart_value float64) *cart {
   return &cart;
 }
 
+/**
+ * Retrieves a cart
+ */
+func (gc GoCart) GetCart(id int64) *cart {
+  gc.Connect();
+  defer gc.Db.Close();
+
+  table := gc.GetTable();
+  // @TODO: refactor to use some abstraction that takes away the requirement for mysql
+  row, err := gc.Db.Query(fmt.Sprint("SELECT CartId, Items, CartValue FROM ", table, " WHERE CartId = ?"), id);
+  if err != nil {
+    panic(err);
+  }
+  var cart_id int64;
+  var cart_items []Item;
+  var cart_value float64;
+  row.Next();
+  fmt.Println("SCANNED");
+  row.Scan(&cart_id, &cart_items, &cart_value)
+  fmt.Println(cart_id);
+  cart := cart{
+    cart_id: cart_id,
+    items: cart_items,
+    cart_value: cart_value,
+  }
+  return &cart;
+}
+
+/**
+ * Retrieves an individual item
+ */
+func (gc GoCart) GetItem(id int64) *Item {
+  gc.Connect();
+  defer gc.Db.Close();
+
+  // @TODO: Replace with the proper table reference.  We need to know what table to use.
+  table := gc.GetTable();
+  row, err := gc.Db.Query(fmt.Sprint("SELECT * FROM ", table, " WHERE ItemId = ?"), id);
+  if err != nil {
+    panic(err);
+  }
+  fmt.Println(row);
+  item := Item{}
+  return &item;
+}

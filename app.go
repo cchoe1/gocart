@@ -30,4 +30,7 @@ func main() {
   command_line := gocart.CommandLine{};
   command_line.Init();
 
+  rest_api := gocart.RestApi{};
+  rest_api.Init();
+
 }

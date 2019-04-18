@@ -1,9 +1,5 @@
 package gocart
 
-import (
-  "database/sql"
-)
-
 /**
  * Any connectors implementing our ConnectionInterface should be able to connect/disconnect to the appropriate persistence layer and return a GoCart instance
  * @TODO: Rename this func. Separate the insert from the general Connect() functionality--just because we connect to the DB does not mean we want to insert a cart
