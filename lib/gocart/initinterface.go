@@ -3,6 +3,9 @@ package gocart
 import "net/http"
 import "log"
 import "strconv"
+import "fmt"
+import "encoding/json"
+import "strings"
 
 type CommandLine struct {
 
@@ -29,13 +32,13 @@ func (cli *CommandLine) Init() (GoCart) {
   cli.GoCart.loadConfig();
 
   mysql := MysqlConnection{
-    host: cli.GoCart.Configuration.Database.Host, // cnf
-    port: cli.GoCart.Configuration.Database.Port, // cnf
-    user: cli.GoCart.Configuration.Database.Username, // cnf
-    password: cli.GoCart.Configuration.Database.Password, // cnf
-    database: cli.GoCart.Configuration.Database.Database, // cnf
-    table: cli.GoCart.Configuration.Database.Cart.Table, // cnf ? maybe just create on initial run?
-    table_index: cli.GoCart.Configuration.Database.Mappings.Index,
+    host: cli.GoCart.Config.Database.Host,
+    port: cli.GoCart.Config.Database.Port,
+    user: cli.GoCart.Config.Database.Username,
+    password: cli.GoCart.Config.Database.Password,
+    database: cli.GoCart.Config.Database.Database,
+    table: cli.GoCart.Config.Database.Cart.Table,
+    table_index: cli.GoCart.Config.Database.Cart.Mappings.Index,
   }
 
   // Test logic below - not required for normal use
@@ -43,7 +46,7 @@ func (cli *CommandLine) Init() (GoCart) {
     Connection: mysql,
   }
   //GC, err := mysql.Connect();
-  cart1 := gocart.NewCart([]Item{}, 0.00);
+  _ = gocart.NewCart([]Item{}, 0.00);
 
   return gocart;
 }
@@ -54,13 +57,13 @@ func (cli *CommandLine) Init() (GoCart) {
 func (rest *RestApi) Init() error {
   rest.GoCart.loadConfig();
   mysql := MysqlConnection{
-    host: "localhost", // cnf
-    port: "33050", // cnf
-    user: "pantheon", // cnf
-    password: "pantheon", // cnf
-    database: "pantheon", // cnf
-    table: "gocart", // cnf ? maybe just create on initial run?
-    table_index: "CartId",
+    host: rest.GoCart.Config.Database.Host,
+    port: rest.GoCart.Config.Database.Port,
+    user: rest.GoCart.Config.Database.Username,
+    password: rest.GoCart.Config.Database.Password,
+    database: rest.GoCart.Config.Database.Database,
+    table: rest.GoCart.Config.Database.Cart.Table,
+    table_index: rest.GoCart.Config.Database.Cart.Mappings.Index,
   }
 
   rest.GoCart = GoCart{
@@ -77,6 +80,17 @@ func (rest *RestApi) Init() error {
     }
     rest.GetCart(w, r, cart_id);
   });
+
+  http.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
+    cart_id, err := strconv.ParseInt(r.URL.Query().Get("cart_id"), 10, 64);
+    if err != nil {
+      panic(err);
+    }
+    items_qsp := r.URL.Query().Get("items");
+    rest.AddToCart(w, r, cart_id, items_qsp);
+    // @TODO: Print some error/success message
+
+  });
   //http.HandleFunc("/gocart/get")
 
   log.Fatal(http.ListenAndServe(":9090", nil))
@@ -85,6 +99,31 @@ func (rest *RestApi) Init() error {
 
 func (rest *RestApi) GetCart(w http.ResponseWriter, r *http.Request, id int64) error {
   gc := rest.GoCart;
-  _ = gc.GetCart(id);
+  cart := gc.GetCart(id);
+  fmt.Println(cart);
+
+  bytes, err := json.Marshal(cart);
+  if err != nil {
+    panic(err);
+  }
+
+  response := string(bytes);
+  fmt.Fprintln(w, response);
   return nil;
+}
+
+func (rest *RestApi) AddToCart(w http.ResponseWriter, r *http.Request, cart_id int64, item_ids string) {
+
+  ids := strings.Split(item_ids, ",");
+
+  cart := rest.GoCart.GetCart(cart_id);
+  for _, item_id := range ids {
+    item_id, err := strconv.ParseInt(item_id, 10, 64);
+    if err != nil {
+      panic(err);
+    }
+    item := rest.GoCart.GetItem(item_id);
+    cart.Add(*item);
+  }
+  rest.GoCart.SaveCart(*cart);
 }

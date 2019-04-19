@@ -34,6 +34,11 @@ type Item struct {
    */
   item_price float64;
 
+  /**
+   * Config necessary for mappings
+   */
+  Config Configuration;
+
 }
 
 type ItemInterface interface {
