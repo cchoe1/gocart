@@ -1,0 +1,30 @@
+# THIS IS AN EXAMPLE CONFIG FILE.  PLEASE RENAME TO 'config.yml'
+#
+# This file is meant to be an intuitive configuration file not requiring any internal knowledge of Gocart.
+# Simply take an intuitive approach to filling the fields below:
+database:
+  # Basic database authentication below
+  type: mysql
+  username: username
+  password: password
+  database: database
+  host: localhost
+  port: 3306
+  # For cart, this is mostly a custom table that we create so ensure it is a non-existing table
+  # For vanilla installs, you can just keep everything here, as is.
+  cart:
+    table: gocart
+    mappings:
+      index: CartId
+  # We source our item information from the provided table below.  We need to know at least basic information like the Index of the item.
+  #   so we can add the appropriate reference in our custom GoCart table
+  # This will most likely differ depending on your existing database
+  items:
+    table: iconnect_product
+    # Our service requires some knowledge on a few fields so we create the 'links', or mapping, here
+    mappings:
+      index: id
+      name: name
+      price: price
+      cost: cost
+

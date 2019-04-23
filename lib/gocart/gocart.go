@@ -60,7 +60,6 @@ func (gc *GoCart) loadConfig() error {
     panic(yaml_err);
   }
   gc.Config = config;
-  fmt.Println(config);
   return nil;
 }
 
@@ -146,15 +145,22 @@ func (gc GoCart) SaveCart(cart cart) error {
 
   index := gc.Config.Database.Cart.Mappings.Index;
   items := cart.GetItems();
-  var item_ids string;
 
-  // @TODO: Convert this to a method on the Item struct
+  var item_ids string;
+  // @TODO: Convert this to a method on the Item struct?
+  // @TODO: Convert this to use the encode/json lib?
   for _, item := range items {
     //append(item_ids, []Item{item.GetId()}...);
-    item_ids = item_ids + "," + strconv.FormatInt(item.GetItemId(), 10);
+    if item.GetItemId() != 0 {
+    item_id := strconv.FormatInt(item.GetItemId(), 10);
+      if len(item_ids) == 0 {
+        item_ids = item_id;
+        continue;
+      }
+      item_ids = item_ids + "," + item_id;
+    }
   }
-  // @TODO: Convert this to use the encode/json lib?
-  item_ids = "{" + item_ids + "}";
+  item_ids = "{\"items\":[" + item_ids + "]}";
   fmt.Println(item_ids);
 
   _, err := gc.Db.Query(fmt.Sprint("UPDATE ", gc.Config.Database.Cart.Table, " SET ", 
@@ -173,7 +179,6 @@ func (gc GoCart) SaveCart(cart cart) error {
     cart.GetCreated(),
     cart.GetUpdated(),
   );
-  fmt.Println(err);
 
   return err;
 }
@@ -201,8 +206,7 @@ func (gc GoCart) GetItem(id int64) *Item {
   cost_mapping := gc.Config.Database.Items.Mappings.Cost;
   // @TODO: Should we implement the table index field?  well i think we have to...
   query := fmt.Sprint("SELECT ", table_index, ",", name_mapping, ",", price_mapping, ",", cost_mapping, " FROM ", table, " WHERE ", table_index, " = ", id);
-  fmt.Println(query);
-  row, err := gc.Db.Query(fmt.Sprint("SELECT ", table_index, ",", name_mapping, ",", price_mapping, ",", cost_mapping, " FROM ", table, " WHERE ", table_index, " = ", id));
+  row, err := gc.Db.Query(query);
 
   if err != nil {
     panic(err);

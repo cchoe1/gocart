@@ -1,2 +1,7 @@
+config.yml
+
 *.swp
+*.swo
+*.swn
+*.swm
 

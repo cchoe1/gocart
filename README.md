@@ -5,7 +5,7 @@ of any e-commerce website and provide shopping cart capabilities with minimal re
 
 The data transfer will happen via a common interface--HTTP requests.  SPAs and traditional models alike will be able
 to query the service for information on a given cart.  The internals will be powered by Golang and persistence can be
-achieved using any typical database software (by default, Mysql support will be included).  
+achieved using MySQL.  Support for other databases may come in the future.
 
 Configuration will be saved as yaml or json (not yet determined). 
 
