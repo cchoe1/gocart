@@ -74,6 +74,7 @@ func (rest *RestApi) Init() error {
    * GET request
    */
   http.HandleFunc("/gocart/getCart", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintln(w, `<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">`);
     cart_id, err := strconv.ParseInt(r.URL.Query().Get("cart_id"), 10, 64);
     if err != nil {
       panic(err);
@@ -82,6 +83,7 @@ func (rest *RestApi) Init() error {
   });
 
   http.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintln(w, `<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">`);
     cart_id, err := strconv.ParseInt(r.URL.Query().Get("cart_id"), 10, 64);
     if err != nil {
       panic(err);
@@ -100,7 +102,6 @@ func (rest *RestApi) Init() error {
 func (rest *RestApi) GetCart(w http.ResponseWriter, r *http.Request, id int64) error {
   gc := rest.GoCart;
   cart := gc.GetCart(id);
-  fmt.Println(cart);
 
   bytes, err := json.Marshal(cart);
   if err != nil {
