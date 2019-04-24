@@ -1,5 +1,8 @@
 package gocart
 
+import "database/sql"
+import "fmt"
+
 /**
  * Any connectors implementing our ConnectionInterface should be able to connect/disconnect to the appropriate persistence layer and return a GoCart instance
  * @TODO: Rename this func. Separate the insert from the general Connect() functionality--just because we connect to the DB does not mean we want to insert a cart
@@ -43,3 +46,38 @@ type MysqlConnection struct {
 //}
 
 
+func (mysql MysqlConnection) EnsureCartTable() error {
+
+  dsn := mysql.user + ":" + mysql.password + "@tcp(" + mysql.host + ":" + mysql.port + ")/" + mysql.database + "?charset=utf8";
+
+  var db *sql.DB;
+  var err error;
+
+  db, err = sql.Open("mysql", dsn);
+  if err != nil {
+    print(err);
+    print("YUP");
+  }
+
+  check_query := `
+    SELECT count(*)
+    FROM gocart
+  `;
+  _, err = db.Query(check_query);
+
+  if err != nil {
+    new_table_query := `
+      CREATE TABLE gocart(
+        CartId INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+        Items TEXT,
+        CartValue FLOAT,
+        CartOwner INT UNSIGNED,
+        Created INT UNSIGNED,
+        Updated INT UNSIGNED
+      )
+    `;
+    _, err = db.Exec(new_table_query);
+    fmt.Println(err);
+  }
+  return nil;
+}

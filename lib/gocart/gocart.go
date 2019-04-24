@@ -88,7 +88,7 @@ func (gc GoCart) NewCart(items []Item, cart_value float64) *cart {
   table := gc.GetTable();
 
   // @TODO: Is this the best way to prepare this statement?
-  result, query_error := gc.Db.Exec(fmt.Sprint("INSERT INTO ", table, " (CartValue, Items, Created) VALUES (?, ?, ?)"), "0.00", "{}", created);
+  result, query_error := gc.Db.Exec(fmt.Sprint("INSERT INTO ", table, " (CartValue, Items, CartOwner, Created, Updated) VALUES (?, ?, ?, ?, ?)"), "0.00", "{}", 0, created, 0);
   if query_error != nil {
     panic(query_error);
   }
@@ -100,9 +100,10 @@ func (gc GoCart) NewCart(items []Item, cart_value float64) *cart {
 
   cart := cart{
     CartId: id,
-    CartValue: 0,
+    CartValue: 0.00,
     Items: items,
-    Created: time.Now().Unix(),
+    Created: created,
+    CartOwner: 0,
   }
 
   return &cart;
@@ -117,19 +118,30 @@ func (gc GoCart) GetCart(id int64) *cart {
 
   table := gc.GetTable();
   // @TODO: refactor to use some abstraction that takes away the requirement for mysql
-  row, err := gc.Db.Query(fmt.Sprint("SELECT CartId, Items, CartValue FROM ", table, " WHERE CartId = ?"), id);
+  row, err := gc.Db.Query(fmt.Sprint("SELECT CartId, Items, CartValue, CartOwner, Created, Updated FROM ", table, " WHERE CartId = ?"), id);
   if err != nil {
     panic(err);
   }
+  defer row.Close();
   var cart_id int64;
-  var cart_items []Item;
+  var cart_items []uint8;
   var cart_value float64;
+  var cart_owner int64;
+  var created int64;
+  var updated int64;
+
   row.Next();
-  row.Scan(&cart_id, &cart_items, &cart_value);
+  err = row.Scan(&cart_id, &cart_items, &cart_value, &cart_owner, &created, &updated);
+  if err != nil {
+    fmt.Println(err);
+  }
   cart := cart{
     CartId: cart_id,
-    Items: cart_items,
+    //Items: cart_items,
     CartValue: cart_value,
+    CartOwner: cart_owner,
+    Created: created,
+    Updated: updated,
   }
   return &cart;
 }

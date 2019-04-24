@@ -6,6 +6,7 @@ import "strconv"
 import "fmt"
 import "encoding/json"
 import "strings"
+import "github.com/gorilla/mux"
 
 type CommandLine struct {
 
@@ -40,6 +41,7 @@ func (cli *CommandLine) Init() (GoCart) {
     table: cli.GoCart.Config.Database.Cart.Table,
     table_index: cli.GoCart.Config.Database.Cart.Mappings.Index,
   }
+  mysql.EnsureCartTable();
 
   // Test logic below - not required for normal use
   gocart := GoCart{
@@ -65,25 +67,27 @@ func (rest *RestApi) Init() error {
     table: rest.GoCart.Config.Database.Cart.Table,
     table_index: rest.GoCart.Config.Database.Cart.Mappings.Index,
   }
+  mysql.EnsureCartTable();
 
   rest.GoCart = GoCart{
     Connection: mysql,
   }
+  router := mux.NewRouter();
 
   /**
    * GET request
    */
-  http.HandleFunc("/gocart/getCart", func(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, `<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">`);
+  //http.HandleFunc("/gocart/getCart", func(w http.ResponseWriter, r *http.Request) {
+  router.HandleFunc("/gocart/getCart", func(w http.ResponseWriter, r *http.Request) {
     cart_id, err := strconv.ParseInt(r.URL.Query().Get("cart_id"), 10, 64);
     if err != nil {
       panic(err);
     }
     rest.GetCart(w, r, cart_id);
-  });
+  }).Methods("GET");
 
-  http.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, `<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">`);
+  //http.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
+  router.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
     cart_id, err := strconv.ParseInt(r.URL.Query().Get("cart_id"), 10, 64);
     if err != nil {
       panic(err);
@@ -91,11 +95,11 @@ func (rest *RestApi) Init() error {
     items_qsp := r.URL.Query().Get("items");
     rest.AddToCart(w, r, cart_id, items_qsp);
     // @TODO: Print some error/success message
+  }).Methods("POST");
 
-  });
   //http.HandleFunc("/gocart/get")
 
-  log.Fatal(http.ListenAndServe(":9090", nil))
+  log.Fatal(http.ListenAndServe(":9090", router))
   return nil;
 }
 
