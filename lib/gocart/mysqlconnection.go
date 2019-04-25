@@ -1,7 +1,6 @@
 package gocart
 
 import "database/sql"
-import "fmt"
 
 /**
  * Any connectors implementing our ConnectionInterface should be able to connect/disconnect to the appropriate persistence layer and return a GoCart instance
@@ -55,8 +54,7 @@ func (mysql MysqlConnection) EnsureCartTable() error {
 
   db, err = sql.Open("mysql", dsn)
   if err != nil {
-    print(err)
-    print("YUP")
+    panic(err)
   }
 
   check_query := `
@@ -77,7 +75,6 @@ func (mysql MysqlConnection) EnsureCartTable() error {
       )
     `
     _, err = db.Exec(new_table_query)
-    fmt.Println(err)
   }
   return nil
 }

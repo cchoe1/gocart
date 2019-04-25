@@ -27,9 +27,8 @@ type InitInterface interface {
   GetCart(id int64) error
 }
 
-// Perform logic here
 // @TODO: Init() should not return any application stuff, maybe a status code if anything
-func (cli *CommandLine) Init() (GoCart) {
+func (cli *CommandLine) Init() error {
   cli.GoCart.loadConfig()
 
   mysql := MysqlConnection{
@@ -48,9 +47,9 @@ func (cli *CommandLine) Init() (GoCart) {
     Connection: mysql,
   }
   //GC, err := mysql.Connect()
-  _ = gocart.NewCart([]Item{}, 0.00)
+  _ = gocart.NewCart([]Item{}, 15)
 
-  return gocart
+  return nil
 }
 
 /**
@@ -86,7 +85,9 @@ func (rest *RestApi) Init() error {
     rest.GetCart(w, r, cart_id)
   }).Methods("GET")
 
-  //http.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
+  /**
+   * POST request
+   */
   router.HandleFunc("/gocart/addToCart", func(w http.ResponseWriter, r *http.Request) {
     cart_id, err := strconv.ParseInt(r.URL.Query().Get("cart_id"), 10, 64)
     if err != nil {
@@ -97,12 +98,19 @@ func (rest *RestApi) Init() error {
     // @TODO: Print some error/success message
   }).Methods("POST")
 
-  //http.HandleFunc("/gocart/get")
-
   log.Fatal(http.ListenAndServe(":9090", router))
   return nil
 }
 
+/**
+ * GET request
+ * /gocart/getCart
+ *
+ * Query String:
+ *  - cart_id int64: The ID of the cart
+ * Request Body:
+ *  - n/a
+ */
 func (rest *RestApi) GetCart(w http.ResponseWriter, r *http.Request, id int64) error {
   gc := rest.GoCart
   cart := gc.GetCart(id)
@@ -117,6 +125,15 @@ func (rest *RestApi) GetCart(w http.ResponseWriter, r *http.Request, id int64) e
   return nil
 }
 
+/**
+ * POST request
+ * /gocart/addToCart
+ *
+ * Query String:
+ *  - n/a
+ * Request Body:
+ *  -
+ */
 func (rest *RestApi) AddToCart(w http.ResponseWriter, r *http.Request, cart_id int64, item_ids string) {
 
   ids := strings.Split(item_ids, ",")

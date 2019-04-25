@@ -1,3 +1,4 @@
+// @TODO: Idea - we create a Persister/Entity object that will hold the configuration.  Then we can leavee these fields as non-public and then reference the Item struct on the Entity struct.  Item struct used for printing json but no persistence while Entity has the persistence.
 package gocart
 /**
  * The Item struct
@@ -7,37 +8,37 @@ type Item struct {
   /**
    * The unique internal Product ID
    */
-  item_id int64
+  ItemId int64;
 
   /**
    * Most likely the unique identifier
    */
-  item_sku string
+  ItemSku string;
 
   /**
    * The product's name
    */
-  item_name string
+  ItemName string;
 
   /**
    * The product's description
    */
-  item_description string
+  ItemDescription string;
 
   /**
    * The product's cost
    */
-  item_cost float64
+  ItemCost float64;
 
   /**
    * The product's selling price
    */
-  item_price float64
+  ItemPrice float64;
 
   /**
    * Config necessary for mappings
    */
-  Config Configuration
+  config Configuration;
 
 }
 
@@ -49,78 +50,78 @@ type ItemList struct {
   /**
    * An array of item IDs
    */
-   Items []int64 `json:"items"`
+  Items []int64;
 
 }
 
 type ItemInterface interface {
   /* Non-public Methods */
   /* Public Methods */
-  GetItemId() int64
-  GetItemSku() string
-  GetItemName() string
-  GetItemDescription() string
-  GetItemCost() float64
-  GetItemPrice() float64
+  GetItemId() int64;
+  GetItemSku() string;
+  GetItemName() string;
+  GetItemDescription() string;
+  GetItemCost() float64;
+  GetItemPrice() float64;
 
-  SetItemId() *Item
-  SetItemSku() *Item
-  SetItemName() *Item
-  SetItemDescription() *Item
-  SetItemCost() *Item
-  SetItemPrice() *Item
+  SetItemId() *Item;
+  SetItemSku() *Item;
+  SetItemName() *Item;
+  SetItemDescription() *Item;
+  SetItemCost() *Item;
+  SetItemPrice() *Item;
 }
 
 func (item Item) GetItemId() int64 {
-  return item.item_id
+  return item.ItemId;
 }
 
 func (item Item) GetItemSku() string {
-  return item.item_sku
+  return item.ItemSku;
 }
 
 func (item Item) GetItemName() string {
-  return item.item_name
+  return item.ItemName;
 }
 
 func (item Item) GetItemDescription() string {
-  return item.item_description
+  return item.ItemDescription;
 }
 
 func (item Item) GetItemCost() float64 {
-  return item.item_cost
+  return item.ItemCost;
 }
 
 func (item Item) GetItemPrice() float64 {
-  return item.item_price
+  return item.ItemPrice;
 }
 
 func (item *Item) SetItemId(id int64) *Item {
-  item.item_id = id
-  return item
+  item.ItemId = id;
+  return item;
 }
 
 func (item *Item) SetItemSku(sku string) *Item {
-  item.item_sku = sku
-  return item
+  item.ItemSku = sku;
+  return item;
 }
 
-func (item *Item) SetItemName(item_name string) *Item {
-  item.item_name = item_name
-  return item
+func (item *Item) SetItemName(ItemName string) *Item {
+  item.ItemName = ItemName;
+  return item;
 }
 
-func (item *Item) SetItemDescription(item_description string) *Item {
-  item.item_description = item_description
-  return item
+func (item *Item) SetItemDescription(ItemDescription string) *Item {
+  item.ItemDescription = ItemDescription;
+  return item;
 }
 
-func (item *Item) SetItemCost(item_cost float64) *Item {
-  item.item_cost = item_cost
-  return item
+func (item *Item) SetItemCost(ItemCost float64) *Item {
+  item.ItemCost = ItemCost;
+  return item;
 }
 
-func (item *Item) SetItemPrice(item_price float64) *Item {
-  item.item_price = item_price
-  return item
+func (item *Item) SetItemPrice(ItemPrice float64) *Item {
+  item.ItemPrice = ItemPrice;
+  return item;
 }

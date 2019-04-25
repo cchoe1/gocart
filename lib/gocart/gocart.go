@@ -80,7 +80,7 @@ func (gc GoCart) GetTable() string {
   return gc.Connection.table
 }
 
-func (gc GoCart) NewCart(items []Item, cart_value float64) *cart {
+func (gc GoCart) NewCart(items []Item, owner int64) *cart {
   gc.Connect()
   defer gc.Db.Close()
 
@@ -105,9 +105,9 @@ func (gc GoCart) NewCart(items []Item, cart_value float64) *cart {
     CartValue: 0.00,
     Items: items,
     Created: created,
-    CartOwner: 0,
+    CartOwner: owner,
   }
-
+  cart.calculateValue()
   return &cart
 }
 
@@ -135,7 +135,7 @@ func (gc GoCart) GetCart(id int64) *cart {
   row.Next()
   err = row.Scan(&cart_id, &cart_items, &cart_value, &cart_owner, &created, &updated)
   if err != nil {
-    fmt.Println(err)
+    panic(err)
   }
 
   item_list := ItemList{}
@@ -157,7 +157,10 @@ func (gc GoCart) GetCart(id int64) *cart {
     Created: created,
     Updated: updated,
   }
-  fmt.Println(cart);
+  cart.calculateValue()
+  // @TODO: YUCK.  Need to refactor so that our entity structs have access to Save() itself without calling this GoCart struct
+  gc.SaveCart(cart)
+
   return &cart
 }
 
@@ -188,7 +191,6 @@ func (gc GoCart) SaveCart(cart cart) error {
     }
   }
   item_ids = "{\"items\":[" + item_ids + "]}"
-  fmt.Println(item_ids)
 
   _, err := gc.Db.Query(fmt.Sprint("UPDATE ", gc.Config.Database.Cart.Table, " SET ",
     index, " = ?, ",
@@ -209,7 +211,6 @@ func (gc GoCart) SaveCart(cart cart) error {
 
   return err
 }
-
 
 /**
  * Retrieves an individual item
@@ -239,13 +240,13 @@ func (gc GoCart) GetItem(id int64) *Item {
     panic(err)
   }
   row.Next()
-  row.Scan(&item_id, &item_name, &item_cost, &item_price)
+  row.Scan(&item_id, &item_name, &item_price, &item_cost)
   // @TODO: should we implement the other fields?
   item := Item{
-    item_id: item_id,
-    item_name: item_name,
-    item_cost: item_cost,
-    item_price: item_price,
+    ItemId: item_id,
+    ItemName: item_name,
+    ItemCost: item_cost,
+    ItemPrice: item_price,
   }
   return &item
 }

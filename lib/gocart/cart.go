@@ -15,125 +15,128 @@ type cart struct {
   /**
    * The unique internal Cart ID
    */
-  CartId int64;
+  CartId int64
 
   /**
    * The items that exist in the cart
    */
-  Items []Item;
+  Items []Item
 
   /**
    * Recalculated at every addition/subtraction of items from the cart.
    */
-  CartValue float64;
+  CartValue float64
 
   /**
    * The owner of the cart
+   * 0 - Anonymous
+   * -1 - Invalid user
    */
-  CartOwner int64;
+  CartOwner int64
 
   /**
    * The time of cart creation
    */
-  Created int64;
+  Created int64
 
   /**
    * The time of last cart update
    */
-  Updated int64;
+  Updated int64
 
 }
 
 type CartInterface interface {
   /* Non-public Methods */
-  calculateValue() float64;
+  calculateValue() float64
 
   /* Public Methods */
-  GetId() int64;
-  GetValue() float64;
-  GetItems() []Item;
-  GetOwner() int64;
-  GetCreated() int64;
-  GetUpdated() int64;
+  GetId() int64
+  GetValue() float64
+  GetItems() []Item
+  GetOwner() int64
+  GetCreated() int64
+  GetUpdated() int64
 
-  SetId(id int64) *cart;
-  SetValue(value float64) *cart;
-  SetItems(items []Item) *cart;
-  SetOwner(oid int64) *cart;
-  SetCreated(created int64) *cart;
-  SetUpdated(updated int64) *cart;
+  SetId(id int64) *cart
+  SetValue(value float64) *cart
+  SetItems(items []Item) *cart
+  SetOwner(oid int64) *cart
+  SetCreated(created int64) *cart
+  SetUpdated(updated int64) *cart
 
-  Add(item Item) *cart;
+  Add(item Item) *cart
 }
 
 // @TODO: Should remove the config value for this index and just require it to be this way
 func (c cart) GetId() int64 {
-  return c.CartId;
+  return c.CartId
 }
 
 func (c cart) GetItems() []Item {
-  return c.Items;
+  return c.Items
 }
 
 func (c cart) GetValue() float64 {
-  return c.CartValue;
+  return c.CartValue
 }
 
 func (c cart) GetOwner() int64 {
-  return c.CartOwner;
+  return c.CartOwner
 }
 
 func (c cart) GetCreated() int64 {
-  return c.Created;
+  return c.Created
 }
 
 func (c cart) GetUpdated() int64 {
-  return c.Updated;
+  return c.Updated
 }
 
 func (c *cart) SetId(id int64) *cart {
-  c.CartId = id;
-  return c;
+  c.CartId = id
+  return c
 }
 
 func (c *cart) SetValue(value float64) *cart {
-  c.CartValue = value;
-  return c;
+  c.CartValue = value
+  return c
 }
 
 func (c *cart) SetItems(items []Item) *cart {
-  c.Items = items;
-  return c;
+  c.Items = items
+  return c
 }
 
 func (c *cart) SetOwner(oid int64) *cart {
-  c.CartOwner = oid;
-  return c;
+  c.CartOwner = oid
+  return c
 }
 
 func (c *cart) SetCreated(created int64) *cart {
-  c.Created = created;
-  return c;
+  c.Created = created
+  return c
 }
 
 func (c *cart) SetUpdated(updated int64) *cart {
-  c.Updated = updated;
-  return c;
+  c.Updated = updated
+  return c
 }
 
 func (c *cart) Add(item Item) *cart {
-  current_items := c.GetItems();
+  current_items := c.GetItems()
   new_item := []Item{item}
 
-  c.Items = append(current_items, new_item...);
-  return c;
+  c.Items = append(current_items, new_item...)
+  return c
 }
 
 func (c *cart) calculateValue() float64 {
-  var value float64;
+  var value float64
   for _, item := range c.Items {
-    value += item.GetItemPrice();
+    value += item.GetItemPrice()
   }
-  return value;
+  c.CartValue = value
+  return value
 }
 
