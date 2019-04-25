@@ -94,7 +94,20 @@ func (rest *RestApi) Init() error {
       panic(err)
     }
     items_qsp := r.URL.Query().Get("items")
-    rest.AddToCart(w, r, cart_id, items_qsp)
+    item_quantity := r.URL.Query().Get("quantity")
+
+    ids := strings.Split(items_qsp, ",")
+    for _, item_id := range ids {
+      item_id, err := strconv.ParseInt(item_id, 10, 64)
+      if err != nil {
+        panic(err)
+      }
+      item_quantity, err := strconv.ParseInt(item_quantity, 10, 64)
+      if err != nil {
+        panic(err)
+      }
+      rest.AddToCart(w, r, cart_id, item_id, item_quantity)
+    }
     // @TODO: Print some error/success message
   }).Methods("POST")
 
@@ -134,18 +147,16 @@ func (rest *RestApi) GetCart(w http.ResponseWriter, r *http.Request, id int64) e
  * Request Body:
  *  -
  */
-func (rest *RestApi) AddToCart(w http.ResponseWriter, r *http.Request, cart_id int64, item_ids string) {
+//@TODO: Refactor to only receive 1 item ID and also quantity arg
+func (rest *RestApi) AddToCart(w http.ResponseWriter, r *http.Request, cart_id int64, item_id int64, quantity int64) {
 
-  ids := strings.Split(item_ids, ",")
+  //@ TODO: Need to check for quantity and increment if necessary
 
   cart := rest.GoCart.GetCart(cart_id)
-  for _, item_id := range ids {
-    item_id, err := strconv.ParseInt(item_id, 10, 64)
-    if err != nil {
-      panic(err)
-    }
-    item := rest.GoCart.GetItem(item_id)
-    cart.Add(*item)
-  }
+
+  item := rest.GoCart.GetItem(item_id)
+  item.SetItemQuantity(quantity)
+
+  cart.Add(*item)
   rest.GoCart.SaveCart(*cart)
 }

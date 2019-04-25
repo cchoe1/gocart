@@ -1,5 +1,8 @@
 package gocart
 
+/**
+ * A struct for marshaling/unmarshaling data from config.yml
+ */
 type Configuration struct {
 
   Database struct {
@@ -23,6 +26,7 @@ type Configuration struct {
 
       Mappings struct {
         Index string
+        Sku string
         Name string
         Price string
         Cost string

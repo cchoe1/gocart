@@ -1,5 +1,9 @@
 package gocart
 
+import (
+  //"fmt"
+)
+
 /**
  * The actual cart data
  * Required columns:
@@ -123,18 +127,60 @@ func (c *cart) SetUpdated(updated int64) *cart {
   return c
 }
 
+/**
+ * Adds an item to the cart
+ */
 func (c *cart) Add(item Item) *cart {
   current_items := c.GetItems()
-  new_item := []Item{item}
+  exists := false
+  var current_quantity int64
+  //var location int
 
-  c.Items = append(current_items, new_item...)
+  for _, it := range current_items {
+    if it.GetItemId() == item.GetItemId() {
+      exists = true
+      //location = index
+      current_quantity = it.GetItemQuantity()
+      c.Remove(it)
+      break
+    }
+  }
+
+  if exists {
+    new_quantity := current_quantity + item.GetItemQuantity()
+    item.SetItemQuantity(new_quantity)
+    //copy(c.Items[location:], c.Items[location+1:])
+    //c.Items[len(c.Items)-1], c.Items[location] = c.Items[location], c.Items[len(c.Items)-1]
+    //c.Items = c.Items[:len(c.Items)-1]
+  } else {
+    item.SetItemQuantity(item.GetItemQuantity())
+  }
+
+  //new_item := []Item{item}
+  c.Items = append(c.Items, item)
+  c.calculateValue()
+  return c
+}
+
+func (c *cart) Remove(item Item) *cart {
+  var i int
+  for index, it := range c.Items {
+    if it.GetItemId() == item.GetItemId() {
+      i = index
+      break
+    }
+  }
+  c.Items[len(c.Items)-1], c.Items[i] = c.Items[i], c.Items[len(c.Items)-1]
+  c.Items = c.Items[:len(c.Items)-1]
   return c
 }
 
 func (c *cart) calculateValue() float64 {
   var value float64
   for _, item := range c.Items {
-    value += item.GetItemPrice()
+    individual_val := item.GetItemPrice()
+    quantity := item.GetItemQuantity()
+    value += individual_val * float64(quantity)
   }
   c.CartValue = value
   return value

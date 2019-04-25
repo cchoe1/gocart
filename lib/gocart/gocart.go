@@ -7,7 +7,6 @@ import (
   "io/ioutil"
   //"io"
   "time"
-  "strconv"
   "encoding/json"
 )
 /**
@@ -90,7 +89,7 @@ func (gc GoCart) NewCart(items []Item, owner int64) *cart {
   table := gc.GetTable()
 
   // @TODO: Is this the best way to prepare this statement?
-  result, query_error := gc.Db.Exec(fmt.Sprint("INSERT INTO ", table, " (CartValue, Items, CartOwner, Created, Updated) VALUES (?, ?, ?, ?, ?)"), "0.00", "{}", 0, created, 0)
+  result, query_error := gc.Db.Exec(fmt.Sprint("INSERT INTO ", table, " (CartValue, Items, CartOwner, Created, Updated) VALUES (?, ?, ?, ?, ?)"), "0.00", "[]", 0, created, 0)
   if query_error != nil {
     panic(query_error)
   }
@@ -138,15 +137,16 @@ func (gc GoCart) GetCart(id int64) *cart {
     panic(err)
   }
 
-  item_list := ItemList{}
+  item_list := []ItemItem{}
   err = json.Unmarshal(cart_items, &item_list)
   if err != nil {
     panic(err)
   }
 
   items := []Item{}
-  for _, id := range item_list.Items {
-    item := gc.GetItem(id)
+  for _, item_item := range item_list {
+    item := gc.GetItem(item_item.Id)
+    item.SetItemQuantity(item_item.Quantity)
     items = append(items, *item)
   }
   cart := cart{
@@ -176,23 +176,27 @@ func (gc GoCart) SaveCart(cart cart) error {
   index := gc.Config.Database.Cart.Mappings.Index
   items := cart.GetItems()
 
-  var item_ids string
+  var item_info []ItemItem
   // @TODO: Convert this to a method on the Item struct?
   // @TODO: Convert this to use the encode/json lib?
   for _, item := range items {
     //append(item_ids, []Item{item.GetId()}...)
     if item.GetItemId() != 0 {
-    item_id := strconv.FormatInt(item.GetItemId(), 10)
-      if len(item_ids) == 0 {
-        item_ids = item_id
-        continue
+      item_item := ItemItem{
+        Id: item.GetItemId(),
+        Quantity: item.GetItemQuantity(),
       }
-      item_ids = item_ids + "," + item_id
+      item_info = append(item_info, item_item)
     }
   }
-  item_ids = "{\"items\":[" + item_ids + "]}"
+  //item_ids = "{\"items\":[" + item_ids + "]}"
+  marshaled_items, err := json.Marshal(item_info)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(item_info, )
 
-  _, err := gc.Db.Query(fmt.Sprint("UPDATE ", gc.Config.Database.Cart.Table, " SET ",
+  _, err = gc.Db.Query(fmt.Sprint("UPDATE ", gc.Config.Database.Cart.Table, " SET ",
     index, " = ?, ",
     "Items = ?, ",
     "CartOwner = ?, ",
@@ -202,7 +206,7 @@ func (gc GoCart) SaveCart(cart cart) error {
     "WHERE ", index, " = ", cart.GetId(),
   ),
     cart.GetId(),
-    item_ids,
+    marshaled_items,
     cart.GetOwner(),
     cart.GetValue(),
     cart.GetCreated(),
@@ -222,28 +226,31 @@ func (gc GoCart) GetItem(id int64) *Item {
   defer gc.Db.Close()
 
   var item_id int64
+  var item_sku string;
   var item_name string
   var item_cost float64
   var item_price float64
 
   table := gc.Config.Database.Items.Table
-  table_index := gc.Config.Database.Items.Mappings.Index
   // @TODO: Is there a better way to compose this select statement?
+  table_index := gc.Config.Database.Items.Mappings.Index
+  sku_mapping := gc.Config.Database.Items.Mappings.Sku
   name_mapping := gc.Config.Database.Items.Mappings.Name
   price_mapping := gc.Config.Database.Items.Mappings.Price
   cost_mapping := gc.Config.Database.Items.Mappings.Cost
   // @TODO: Should we implement the table index field?  well i think we have to...
-  query := fmt.Sprint("SELECT ", table_index, ",", name_mapping, ",", price_mapping, ",", cost_mapping, " FROM ", table, " WHERE ", table_index, " = ", id)
+  query := fmt.Sprint("SELECT ", table_index, ",", sku_mapping, ",", name_mapping, ",", price_mapping, ",", cost_mapping, " FROM ", table, " WHERE ", table_index, " = ", id)
   row, err := gc.Db.Query(query)
 
   if err != nil {
     panic(err)
   }
   row.Next()
-  row.Scan(&item_id, &item_name, &item_price, &item_cost)
+  row.Scan(&item_id, &item_sku, &item_name, &item_price, &item_cost)
   // @TODO: should we implement the other fields?
   item := Item{
     ItemId: item_id,
+    ItemSku: item_sku,
     ItemName: item_name,
     ItemCost: item_cost,
     ItemPrice: item_price,
