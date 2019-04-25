@@ -23,14 +23,16 @@ import _ "github.com/go-sql-driver/mysql"
 func main() {
 
   arg1 := os.Args[1]
-  arg2 := os.Args[2]
 
-  fmt.Println(arg1, arg2)
-
-  command_line := gocart.CommandLine{}
-  command_line.Init()
-
-  rest_api := gocart.RestApi{}
-  rest_api.Init()
-
+  if arg1 == "cli" {
+    // @TODO: This will need to read a second/third arg since CLI mode is controlling the app via binary file
+    fmt.Println("CLI mode started.")
+    command_line := gocart.CommandLine{}
+    command_line.Init()
+  }
+  if arg1 == "web" {
+    fmt.Println("Web mode started.  Now listening for HTTP requests on localhost:9090.")
+    rest_api := gocart.RestApi{}
+    rest_api.Init()
+  }
 }
