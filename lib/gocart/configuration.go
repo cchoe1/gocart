@@ -3,29 +3,29 @@ package gocart
 type Configuration struct {
 
   Database struct {
-    Type string;
-    Username string;
-    Password string;
-    Database string;
-    Host string;
-    Port string;
+    Type string
+    Username string
+    Password string
+    Database string
+    Host string
+    Port string
 
     Cart struct {
-      Table string;
+      Table string
 
       Mappings struct {
-        Index string;
+        Index string
       }
     }
 
     Items struct {
-      Table string;
+      Table string
 
       Mappings struct {
-        Index string;
-        Name string;
-        Price string;
-        Cost string;
+        Index string
+        Name string
+        Price string
+        Cost string
       }
     }
   }

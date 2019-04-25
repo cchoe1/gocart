@@ -25,12 +25,12 @@ func main() {
   arg1 := os.Args[1]
   arg2 := os.Args[2]
 
-  fmt.Println(arg1, arg2);
+  fmt.Println(arg1, arg2)
 
-  command_line := gocart.CommandLine{};
-  command_line.Init();
+  command_line := gocart.CommandLine{}
+  command_line.Init()
 
-  rest_api := gocart.RestApi{};
-  rest_api.Init();
+  rest_api := gocart.RestApi{}
+  rest_api.Init()
 
 }
