@@ -26,25 +26,9 @@ type MysqlConnection struct {
 
 }
 
-//func (mysql MysqlConnection) Connect() (*sql.DB, error) {
-//  dsn := mysql.user + ":" + mysql.password + "@tcp(" + mysql.host + ":" + mysql.port + ")/" + mysql.database + "?charset=utf8"
-//  var db *sql.DB
-//  var err error
-//
-//  db, err = sql.Open("mysql", dsn)
-//  //go_cart := GoCart{
-//  //  Db: db,
-//  //  Connection: mysql,
-//  //}
-//  return db, err
-//}
-//
-//func (mysql MysqlConnection) Disconnect() error {
-//
-//  return nil
-//}
-
-
+/**
+ * If an existing `gocart` table does not already exist, then we create one
+ */
 func (mysql MysqlConnection) EnsureCartTable() error {
 
   dsn := mysql.user + ":" + mysql.password + "@tcp(" + mysql.host + ":" + mysql.port + ")/" + mysql.database + "?charset=utf8"
