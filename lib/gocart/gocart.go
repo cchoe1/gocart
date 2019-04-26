@@ -194,7 +194,6 @@ func (gc GoCart) SaveCart(cart cart) error {
   if err != nil {
     panic(err)
   }
-  fmt.Println(item_info, )
 
   _, err = gc.Db.Query(fmt.Sprint("UPDATE ", gc.Config.Database.Cart.Table, " SET ",
     index, " = ?, ",
