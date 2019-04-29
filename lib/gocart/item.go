@@ -1,5 +1,6 @@
 // @TODO: Idea - we create a Persister/Entity object that will hold the configuration.    Then we can leavee these fields as non-public and then reference the Item struct on the Entity struct.    Item struct used for printing json but no persistence while Entity has the persistence.
 package gocart
+
 /**
  * The Item struct
  */
@@ -75,6 +76,7 @@ type ItemInterface interface {
     SetItemQuantity() *Item
 }
 
+/* Getters */
 func (item Item) GetItemId() int64 {
     return item.ItemId
 }
@@ -103,6 +105,7 @@ func (item Item) GetItemQuantity() int64 {
     return item.ItemQuantity
 }
 
+/* Setters */
 func (item *Item) SetItemId(id int64) *Item {
     item.ItemId = id
     return item

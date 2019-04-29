@@ -72,7 +72,6 @@ type CartInterface interface {
     Add(item Item) *cart
 }
 
-// @TODO: Should remove the config value for this index and just require it to be this way
 func (c cart) GetId() int64 {
     return c.CartId
 }
@@ -155,6 +154,9 @@ func (c *cart) Add(item Item) *cart {
     return c
 }
 
+/**
+ * Remove an item from the cart
+ */
 func (c *cart) Remove(item Item) *cart {
     var i int
     exists := false
@@ -174,6 +176,9 @@ func (c *cart) Remove(item Item) *cart {
     return c
 }
 
+/**
+ * Recalculates the value of the cart
+ */
 func (c *cart) calculateValue() float64 {
     var value float64
     for _, item := range c.Items {

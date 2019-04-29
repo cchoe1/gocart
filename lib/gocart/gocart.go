@@ -164,7 +164,6 @@ func (gc GoCart) GetCart(id int64) *cart {
     return &cart
 }
 
-// @TODO: If we do implement the multi-DB connector, we need to change this arg to use that
 // @TODO: Is there a better way to expose these config values to this method?
 func (gc GoCart) SaveCart(cart cart) error {
     gc.Connect()
